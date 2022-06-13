@@ -2,8 +2,6 @@
 
 **Version:** 1.0.0
 
-
-
 This sample demonstrates how to build a [Grafana](https://grafana.com/) data source backend plugin that runs queries against the Sequential Data Store of AVEVA Data Hub or Edge Data Store. The sample performs normal "Get Values" calls against a specified stream in SDS, using the time range of the Grafana dashboard. For more information about backend plugins, refer to the documentation on [Backend plugins](https://grafana.com/docs/grafana/latest/developers/plugins/backend/).
 
 ## Requirements
@@ -44,9 +42,9 @@ This sample demonstrates how to build a [Grafana](https://grafana.com/) data sou
 
 ## Using ADH OAuth login to Grafana
 
-To use AVEVA Data Hub as an Identity provider through OAuth, add the following generic OAuth configuration to your grafana server's custom.ini
+To use AVEVA Data Hub as an Identity provider through OAuth, add the following generic OAuth configuration to your grafana server's custom.ini. An Authorization Code Client with the appropriate redirect URLs will need to be gererated. For more information please refer to Grafana's [Generic OAuth documentation](https://grafana.com/docs/grafana/latest/auth/generic-oauth/).
 
-``` ini
+```ini
 [auth.generic_oauth]
 enabled = true
 name = AVEVA Data Hub
@@ -60,18 +58,18 @@ role_attribute_path = contains(role_type[*], '2dc742ab-39ea-4fc0-a39e-2bcb71c26a
 use_pkce = true
 ```
 
-|Setting|Description|
-|---|---|
-|enabled|	Whether generic OAuth is enabled.|
-|name|	The name of the Identity Provider. This is also what is shown on the button when prompted for login.|
-|allow_sign_up|	This setting allows Grafana users to be automatically created upon login. With this set to false, an administrator would have to create an account within Grafana for a user before said user could access Grafana.|
-|client_id|	The Authorization Code Client Id.|
-|scopes|	The OAuth scopes to be designate what access the application should have to the user’s account. OpenId, Profile, and Email are used to gather information about the user and determine what their role should be if role_attribute_path is specified. Ocsapi gives the user access to the AVEVA Data Hub API. Offline_access is used to enable refresh tokens.|
-|auth_url|	The well-known authorization URL of AVEVA Data Hub (may depend on region).|
-|token_url|	The well-known token URL of AVEVA Data Hub (may depend on region).|
-|api_url|	The well-known user information URL of AVEVA Data Hub (may depend on region).|
-|role_attribute_path|	Defines how roles are mapped between AVEVA Data Hub and Grafana. |
-|use_pkce|	Enables and forces Grafana to use PKCE.|
+| Setting             | Description                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| enabled             | Whether generic OAuth is enabled.                                                                                                                                                                                                                                                                                                                              |
+| name                | The name of the Identity Provider. This is also what is shown on the button when prompted for login.                                                                                                                                                                                                                                                           |
+| allow_sign_up       | This setting allows Grafana users to be automatically created upon login. With this set to false, an administrator would have to create an account within Grafana for a user before said user could access Grafana.                                                                                                                                            |
+| client_id           | The Authorization Code Client Id. By default, refresh tokens are not issued and the token lifetime is 1 hour. To enable refresh tokens and allow the token to be refreshed for up to 8 hours, AllowOfflineAccess must be set to true on the client's configuration, which can be set within the API console.                                                   |
+| scopes              | The OAuth scopes to be designate what access the application should have to the user’s account. OpenId, Profile, and Email are used to gather information about the user and determine what their role should be if role_attribute_path is specified. Ocsapi gives the user access to the AVEVA Data Hub API. Offline_access is used to enable refresh tokens. |
+| auth_url            | The well-known authorization URL of AVEVA Data Hub (may depend on region).                                                                                                                                                                                                                                                                                     |
+| token_url           | The well-known token URL of AVEVA Data Hub (may depend on region).                                                                                                                                                                                                                                                                                             |
+| api_url             | The well-known user information URL of AVEVA Data Hub (may depend on region).                                                                                                                                                                                                                                                                                  |
+| role_attribute_path | Defines how roles are mapped between AVEVA Data Hub and Grafana.                                                                                                                                                                                                                                                                                               |
+| use_pkce            | Enables and forces Grafana to use PKCE.                                                                                                                                                                                                                                                                                                                        |
 
 ## Using Community Data
 
