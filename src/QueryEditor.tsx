@@ -11,7 +11,7 @@ export const QueryEditor = ({ query, datasource, onChange }: Props) => {
   query = { ...defaultQuery, ...query };
 
   const selectStream: SelectableValue<string> = { label: query.name, value: query.id };
-  const [defaultOptions, setDefaultOptions] = React.useState<boolean | SelectableValue<string>[]>(true);
+  const [defaultOptions, setDefaultOptions] = React.useState<boolean | Array<SelectableValue<string>>>(true);
 
   const onSelectedStream = (value: SelectableValue<string>) => {
     onChange({ ...query, id: value.value || '', name: value.label || '' });

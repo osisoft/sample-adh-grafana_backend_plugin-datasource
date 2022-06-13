@@ -2,7 +2,6 @@ package datahub
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -234,8 +233,6 @@ func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id str
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
 		return nil, err
 	}
-
-	log.DefaultLogger.Info(fmt.Sprint(sdsType))
 
 	// get data
 	path = (basePath + "/streams/" + id + "/Data?startIndex=" + startIndex + "&endIndex=" + endIndex)

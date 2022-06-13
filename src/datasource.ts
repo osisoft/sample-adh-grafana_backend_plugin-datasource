@@ -16,6 +16,7 @@ export class DataSource extends DataSourceWithBackend<SdsQuery, SdsDataSourceOpt
   type: SdsDataSourceType;
   edsPort: string;
 
+  /** @ngInject */
   constructor(instanceSettings: DataSourceInstanceSettings<SdsDataSourceOptions>, private backendSrv: BackendSrv) {
     super(instanceSettings);
 
@@ -29,7 +30,7 @@ export class DataSource extends DataSourceWithBackend<SdsQuery, SdsDataSourceOpt
     const to = request.range?.to.utc().format();
 
     const requests = request.targets.map((target) => {
-      if (target.id == '') {
+      if (target.id === '') {
         return this.backendSrv.fetch({
           url: `http://localhost:${this.edsPort}/api/v1/tenants/default/namespaces/default/streams?query=${target.queryText}`,
           method: 'GET',
@@ -101,7 +102,7 @@ export class DataSource extends DataSourceWithBackend<SdsQuery, SdsDataSourceOpt
 
   async getStreams(
     query: string,
-    stateAction: Dispatch<SetStateAction<boolean | SelectableValue<string>[]>>
+    stateAction: Dispatch<SetStateAction<boolean | Array<SelectableValue<string>>>>
   ): Promise<Array<SelectableValue<string>>> {
     const observableResponse = this.query({
       targets: [{ ...defaultQuery, refId: 'sds-stream-autocomplete', queryText: query, collection: 'streams', id: '' }],
@@ -119,8 +120,8 @@ export class DataSource extends DataSourceWithBackend<SdsQuery, SdsDataSourceOpt
       return [];
     }
 
-    const ids = dataFrame.fields[dataFrame.fields.findIndex(field => field.name === "Id")].values.toArray();
-    const names = dataFrame.fields[dataFrame.fields.findIndex(field => field.name === "Name")].values.toArray();
+    const ids = dataFrame.fields[dataFrame.fields.findIndex((field) => field.name === 'Id')].values.toArray();
+    const names = dataFrame.fields[dataFrame.fields.findIndex((field) => field.name === 'Name')].values.toArray();
 
     var selectables = [];
     for (let i = 0; i < ids.length; i++) {

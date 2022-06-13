@@ -1,5 +1,5 @@
 {
-  "name": "aveva-auth-test",
+  "name": "sds-grafana-datasource",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -16,18 +16,18 @@
     "@grafana/data": "latest",
     "@grafana/runtime": "latest",
     "@grafana/toolkit": "latest",
-    "@grafana/ui": "^8.5.3",
-    "@types/debounce-promise": "^3.1.4",
+    "@grafana/ui": "latest",
+    "@types/debounce-promise": "latest",
     "@types/lodash": "latest",
-    "eslint-plugin-react-hooks": "^4.5.0"
+    "eslint-plugin-react-hooks": "latest"
   },
   "resolutions": {
-    "rxjs": "7.3.0"
+    "rxjs": "latest"
   },
   "engines": {
     "node": ">=14"
   },
   "dependencies": {
-    "debounce-promise": "^3.1.2"
+    "postcss": "^8.4.13"
   }
 }

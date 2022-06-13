@@ -6,12 +6,12 @@
   "alerting": true,
   "metrics": true,
   "backend": true,
-  "executable": "gpx_auth-test",
+  "executable": "gpx_aveva-sds-datasource",
   "info": {
     "description": "Simple SDS backend datasource plugin sample",
     "author": {
-      "name": "OSIsoft, LLC",
-      "url": "https://osisoft.com"
+      "name": "AVEVA Group plc",
+      "url": "https://aveva.com"
     },
     "keywords": ["aveva", "data"],
     "logos": {
@@ -20,16 +20,20 @@
     },
     "links": [
       {
-        "name": "Website",
-        "url": "https://github.com/grafana/grafana-starter-datasource-backend"
+        "name": "GitHub",
+        "url": "https://github.com/osisoft/sample-adh-grafana_backend_plugin-datasource"
       },
       {
-        "name": "License",
-        "url": "https://github.com/grafana/grafana-starter-datasource-backend/blob/master/LICENSE"
+        "name": "Apache-2 License",
+        "url": "https://github.com/osisoft/sample-adh-grafana_backend_plugin-datasource/LICENSE"
       }
     ],
-    "screenshots": [],
-    "version": "%VERSION%",
+    "screenshots": [
+      { "name": "Data Hub Configuration", "path": "img/ADHConfig.png" },
+      { "name": "Edge Data Store Configuration", "path": "img/EDSConfig.png" },
+      { "name": "Example Data Query", "path": "img/DataQuery.png" }
+    ],
+    "version": "1.0.0",
     "updated": "%TODAY%"
   },
   "dependencies": {
