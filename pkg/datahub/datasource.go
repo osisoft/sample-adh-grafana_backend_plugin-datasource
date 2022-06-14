@@ -83,7 +83,12 @@ func (d *DataHubDataSource) QueryData(ctx context.Context, req *backend.QueryDat
 	if d.oauthPassThru {
 		token = req.Headers["Authorization"]
 	} else {
-		token = GetClientToken(d.dataHubClient)
+		var err error
+		token, err = GetClientToken(d.dataHubClient)
+		if err != nil {
+			log.DefaultLogger.Warn("Unable to get token", err.Error())
+			return nil, err
+		}
 	}
 
 	// create response struct

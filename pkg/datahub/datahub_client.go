@@ -2,6 +2,7 @@ package datahub
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -35,26 +36,29 @@ func NewDataHubClient(resource string, apiVersion string, tenantId string, clien
 	}
 }
 
-func GetClientToken(d *DataHubClient) string {
+func GetClientToken(d *DataHubClient) (string, error) {
 	if (d.tokenExpiration - time.Now().Unix()) > (5 * 60) {
-		return ("Bearer " + d.token)
+		return ("Bearer " + d.token), nil
 	}
 
 	wellKnownEndpoint := d.resource + "/identity/.well-known/openid-configuration"
 	req, err := http.NewRequest("GET", wellKnownEndpoint, nil)
 	if err != nil {
-		log.DefaultLogger.Warn(err.Error())
+		log.DefaultLogger.Warn("Error forming request", err.Error())
+		return "", err
 	}
 
 	resp, err := d.client.Do(req)
 	if err != nil {
-		log.DefaultLogger.Warn(err.Error())
+		log.DefaultLogger.Warn("Error requesting well known endpoints", err.Error())
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.DefaultLogger.Warn(err.Error())
+		log.DefaultLogger.Warn("Error reading response", err.Error())
+		return "", err
 	}
 
 	var openIdConfig map[string]interface{}
@@ -62,6 +66,7 @@ func GetClientToken(d *DataHubClient) string {
 	err = json.Unmarshal(body, &openIdConfig)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		return "", err
 	}
 
 	tokenEndpoint := openIdConfig["token_endpoint"].(string)
@@ -73,12 +78,14 @@ func GetClientToken(d *DataHubClient) string {
 			"grant_type":    {"client_credentials"}})
 
 	if err != nil {
-		log.DefaultLogger.Warn(err.Error())
+		log.DefaultLogger.Warn("Error requesting token", err.Error())
+		return "", err
 	}
 
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.DefaultLogger.Warn(err.Error())
+		log.DefaultLogger.Warn("Error reading request", err.Error())
+		return "", err
 	}
 	defer resp.Body.Close()
 
@@ -87,19 +94,20 @@ func GetClientToken(d *DataHubClient) string {
 	err = json.Unmarshal(body, &tokenInformation)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		return "", err
 	}
 
 	d.token = tokenInformation["access_token"].(string)
 	d.tokenExpiration = int64(tokenInformation["expires_in"].(float64)) + time.Now().Unix()
 
-	return ("Bearer " + d.token)
+	return ("Bearer " + d.token), nil
 }
 
 func SdsRequest(d *DataHubClient, token string, path string, headers map[string]string) ([]byte, error) {
 	// request data or collection items
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
-		log.DefaultLogger.Warn(err.Error())
+		log.DefaultLogger.Warn("Error forming request", err.Error())
 		return nil, err
 	}
 
@@ -114,14 +122,14 @@ func SdsRequest(d *DataHubClient, token string, path string, headers map[string]
 
 	resp, err := d.client.Do(req)
 	if err != nil {
-		log.DefaultLogger.Warn(err.Error())
+		log.DefaultLogger.Warn("Error making request", err.Error())
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.DefaultLogger.Warn(err.Error())
+		log.DefaultLogger.Warn("Error reading request body", err.Error())
 		return nil, err
 	}
 
@@ -142,6 +150,7 @@ func StreamsQuery(d *DataHubClient, namespaceId string, token string, query stri
 	err = json.Unmarshal(body, &streams)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		log.DefaultLogger.Warn(fmt.Sprint(string(body)))
 		return nil, err
 	}
 
@@ -180,6 +189,7 @@ func CommunityStreamsQuery(d *DataHubClient, communityId string, token string, q
 	err = json.Unmarshal(body, &streams)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		log.DefaultLogger.Warn(fmt.Sprint(string(body)))
 		return nil, err
 	}
 
@@ -217,6 +227,7 @@ func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id str
 	err = json.Unmarshal(body, &stream)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		log.DefaultLogger.Warn(fmt.Sprint(string(body)))
 		return nil, err
 	}
 
@@ -231,8 +242,11 @@ func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id str
 	err = json.Unmarshal(body, &sdsType)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		log.DefaultLogger.Warn(fmt.Sprint(string(body)))
 		return nil, err
 	}
+
+	log.DefaultLogger.Info(fmt.Sprint(sdsType))
 
 	// get data
 	path = (basePath + "/streams/" + id + "/Data?startIndex=" + startIndex + "&endIndex=" + endIndex)
@@ -245,6 +259,7 @@ func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id str
 	err = json.Unmarshal(body, &sdsData)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		log.DefaultLogger.Warn(fmt.Sprint(string(body)))
 		return nil, err
 	}
 
@@ -265,12 +280,6 @@ func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id str
 			row[j] = convertSdsValue(sdsType.Properties[j].SdsType.SdsTypeCode, sdsData[i][string(sdsType.Properties[j].Id)])
 		}
 		frame.AppendRow(row...)
-	}
-
-	err = json.Unmarshal(body, &sdsData)
-	if err != nil {
-		log.DefaultLogger.Warn("Error parsing json", err.Error())
-		return nil, err
 	}
 
 	return frame, nil
@@ -294,6 +303,7 @@ func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token strin
 	err = json.Unmarshal(body, &stream)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		log.DefaultLogger.Warn(fmt.Sprint(string(body)))
 		return nil, err
 	}
 
@@ -308,6 +318,7 @@ func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token strin
 	err = json.Unmarshal(body, &sdsResolvedStream)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		log.DefaultLogger.Warn(fmt.Sprint(string(body)))
 		return nil, err
 	}
 
@@ -324,6 +335,7 @@ func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token strin
 	err = json.Unmarshal(body, &sdsData)
 	if err != nil {
 		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		log.DefaultLogger.Warn(fmt.Sprint(string(body)))
 		return nil, err
 	}
 
@@ -344,12 +356,6 @@ func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token strin
 			row[j] = convertSdsValue(sdsType.Properties[j].SdsType.SdsTypeCode, sdsData[i][string(sdsType.Properties[j].Id)])
 		}
 		frame.AppendRow(row...)
-	}
-
-	err = json.Unmarshal(body, &sdsData)
-	if err != nil {
-		log.DefaultLogger.Warn("Error parsing json", err.Error())
-		return nil, err
 	}
 
 	return frame, nil
