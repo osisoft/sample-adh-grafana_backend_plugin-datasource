@@ -60,6 +60,11 @@ func GetClientToken(d *DataHubClient) (string, error) {
 		log.DefaultLogger.Warn("Error reading response", err.Error())
 		return "", err
 	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		err = fmt.Errorf("Status: " + resp.Status + "\nBody: " + string(body))
+		log.DefaultLogger.Warn("Error making request", err)
+		return "", err
+	}
 
 	var openIdConfig map[string]interface{}
 
@@ -82,12 +87,18 @@ func GetClientToken(d *DataHubClient) (string, error) {
 		return "", err
 	}
 
+	defer resp.Body.Close()
+
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.DefaultLogger.Warn("Error reading request", err.Error())
+		log.DefaultLogger.Warn("Error requesting token", err.Error())
 		return "", err
 	}
-	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		err = fmt.Errorf("Status: " + resp.Status + "\nBody: " + string(body))
+		log.DefaultLogger.Warn("Error making request", err)
+		return "", err
+	}
 
 	var tokenInformation map[string]interface{}
 
@@ -114,10 +125,8 @@ func SdsRequest(d *DataHubClient, token string, path string, headers map[string]
 	req.Header.Add("Authorization", token)
 
 	// add optional headers
-	if headers != nil {
-		for k, v := range headers {
-			req.Header.Add(k, v)
-		}
+	for k, v := range headers {
+		req.Header.Add(k, v)
 	}
 
 	resp, err := d.client.Do(req)
@@ -130,6 +139,11 @@ func SdsRequest(d *DataHubClient, token string, path string, headers map[string]
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.DefaultLogger.Warn("Error reading request body", err.Error())
+		return nil, err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		err = fmt.Errorf("Status: " + resp.Status + "\nBody: " + string(body))
+		log.DefaultLogger.Warn("Error making request", err)
 		return nil, err
 	}
 

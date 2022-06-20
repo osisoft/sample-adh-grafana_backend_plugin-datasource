@@ -3,6 +3,7 @@ package datahub
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -41,6 +42,10 @@ type QueryModel struct {
 	Collection string `json:"collection"`
 	Query      string `json:"queryText"`
 	Id         string `json:"id"`
+}
+
+type CheckHealthResponseBody struct {
+	Id string `json:"Id"`
 }
 
 // NewDataHubDataSource creates a new datasource instance.
@@ -82,11 +87,14 @@ func (d *DataHubDataSource) QueryData(ctx context.Context, req *backend.QueryDat
 	var token string
 	if d.oauthPassThru {
 		token = req.Headers["Authorization"]
+		if len(token) == 0 {
+			return nil, fmt.Errorf("unable to retrieve token")
+		}
 	} else {
 		var err error
 		token, err = GetClientToken(d.dataHubClient)
 		if err != nil {
-			log.DefaultLogger.Warn("Unable to get token", err.Error())
+			log.DefaultLogger.Warn("Unable to retrieve token", err.Error())
 			return nil, err
 		}
 	}
@@ -169,8 +177,48 @@ func (d *DataHubDataSource) CheckHealth(_ context.Context, req *backend.CheckHea
 	var status = backend.HealthStatusOk
 	var message = "Data source is working"
 
-	// Test datasource
-	// TODO: Add a check. Not sure how this will work since there is no token passed with this request.
+	// Retrieve token
+	var token string
+	if d.oauthPassThru {
+		return &backend.CheckHealthResult{
+			Status:  status,
+			Message: message,
+		}, nil
+	} else {
+		var err error
+		token, err = GetClientToken(d.dataHubClient)
+		if err != nil {
+			log.DefaultLogger.Warn("Error unable to get token health check", err.Error())
+			return &backend.CheckHealthResult{
+				Status:  backend.HealthStatusError,
+				Message: "Unable to retrieve token",
+			}, nil
+		}
+	}
+
+	// Make a request to test the token
+	var path string
+	if d.useCommunity {
+		path = d.dataHubClient.resource + "/api/" + d.dataHubClient.apiVersion + "/tenants/" + d.dataHubClient.tenantId + "/communities/" + d.communityId
+	} else {
+		path = d.dataHubClient.resource + "/api/" + d.dataHubClient.apiVersion + "/tenants/" + d.dataHubClient.tenantId + "/namespaces/" + d.namespaceId
+	}
+
+	body, err := SdsRequest(d.dataHubClient, token, path, nil)
+	if err != nil {
+		log.DefaultLogger.Warn("Error test request health check", err.Error())
+		status = backend.HealthStatusError
+		message = "Invalid Configuration"
+	}
+
+	var responseJson CheckHealthResponseBody
+
+	err = json.Unmarshal(body, &responseJson)
+	if err != nil {
+		log.DefaultLogger.Warn("Error parsing resonse health check", err.Error())
+		status = backend.HealthStatusError
+		message = "Invalid Configuration"
+	}
 
 	return &backend.CheckHealthResult{
 		Status:  status,
