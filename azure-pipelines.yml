@@ -48,8 +48,11 @@ jobs:
       - script: go mod tidy
         displayName: 'Install dependencies'
         
-      - script: go test
-        displayName: 'Run Go tests'
+      - task: Go@0
+        inputs:
+          command: 'test'
+          arguments: '-v'
+          workingDirectory: '$(Build.SourcesDirectory)'
 
       - task: PublishTestResults@2
         inputs:
