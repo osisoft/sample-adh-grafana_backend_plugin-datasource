@@ -44,6 +44,9 @@ jobs:
 
       - script: npm test
         displayName: 'Run TS tests'
+      
+      - script: go get -u github.com/grafana/grafana-plugin-sdk-go
+        displayName: 'Install Go SDK for Grafana'
         
       - script: go mod tidy
         displayName: 'Install dependencies'
