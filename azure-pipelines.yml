@@ -52,10 +52,10 @@ jobs:
         displayName: 'Install dependencies'
         
       - task: Go@0
+        displayName: 'Run Go Tests'
         inputs:
           command: 'test'
           arguments: '-v'
-          workingDirectory: '$(Build.SourcesDirectory)'
 
       - task: PublishTestResults@2
         inputs:
