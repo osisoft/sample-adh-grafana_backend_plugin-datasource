@@ -50,12 +50,9 @@ jobs:
         
       - script: go mod tidy
         displayName: 'Install dependencies'
-        
-      - task: Go@0
+      
+      - script: go test -v ./...
         displayName: 'Run Go Tests'
-        inputs:
-          command: 'test'
-          arguments: '-v'
 
       - task: PublishTestResults@2
         inputs:
