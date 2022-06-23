@@ -37,7 +37,7 @@ jobs:
   - job: Tests
     pool:
       name: OpsGuild-Staging1
-      demands: IACA5505320
+      demands: Agent.Name -equals IACA5505320
     steps:
       - script: npm ci
         displayName: 'Install dependencies'
