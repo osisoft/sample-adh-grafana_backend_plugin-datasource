@@ -31,7 +31,7 @@ resources:
 variables:
   - template: '/miscellaneous/build_templates/variables.yml@templates'
   - name: analysisProject
-    value: Grafana_NodeJS
+    value: sample-adh-grafana_backend_plugin-datasource
 
 jobs:
   - job: Tests
@@ -64,3 +64,4 @@ jobs:
         displayName: 'Publish test results'
         condition: always()
       
+  - template: '/miscellaneous/build_templates/code-analysis.yml@templates'
