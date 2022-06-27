@@ -16,5 +16,6 @@ capture:
       project:
         languages:
           - javascript
+          - go
 analyze:
   mode: central
