@@ -68,8 +68,10 @@ jobs:
     parameters:
       buildSteps:
         - powershell: |
+            $ProgressPreference = 'SilentlyContinue'
             Invoke-WebRequest https://go.dev/dl/go1.18.3.windows-amd64.msi -OutFile go1.18.3.windows-amd64.msi
-            msiexec /i go1.18.3.windows-amd64.msi /passive
+            $ProgressPreference = 'Continue'
+            start /wait msiexec /i go1.18.3.windows-amd64.msi /passive
           workingDirectory: $(Build.SourcesDirectory)
           displayName: 'Install Go'
           
