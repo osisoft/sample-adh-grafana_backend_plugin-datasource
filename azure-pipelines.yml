@@ -70,12 +70,8 @@ jobs:
         - powershell: |
             $ProgressPreference = 'SilentlyContinue'
             Invoke-WebRequest https://go.dev/dl/go1.18.3.windows-amd64.msi -OutFile go1.18.3.windows-amd64.msi
-            $ProgressPreference = 'Continue'
-            $myJob = Start-Job {msiexec /i go1.18.3.windows-amd64.msi /passive}
-            Wait-Job $myJob 
           workingDirectory: $(Build.SourcesDirectory)
+          displayName: 'Download Go'
+        
+        - script: start /wait msiexec /i go1.18.3.windows-amd64.msi /passive
           displayName: 'Install Go'
-          
-        - powershell: Test-Path -Path "C:\Program Files\Go\bin"
-          workingDirectory: $(Build.SourcesDirectory)
-          displayName: 'test Go'
