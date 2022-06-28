@@ -65,3 +65,11 @@ jobs:
         condition: always()
       
   - template: '/miscellaneous/build_templates/code-analysis.yml@templates'
+    parameters:
+      buildSteps:
+        - powershell: |
+            $ProgressPreference = 'SilentlyContinue'
+            Invoke-WebRequest https://go.dev/dl/go1.18.3.windows-amd64.msi
+            msiexec /i go1.18.3.windows-amd64.msi /passive
+          workingDirectory: $(Build.SourcesDirectory)
+          displayName: 'Install Go'
