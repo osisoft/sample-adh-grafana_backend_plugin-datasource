@@ -71,7 +71,8 @@ jobs:
             $ProgressPreference = 'SilentlyContinue'
             Invoke-WebRequest https://go.dev/dl/go1.18.3.windows-amd64.msi -OutFile go1.18.3.windows-amd64.msi
             $ProgressPreference = 'Continue'
-            start /wait msiexec /i go1.18.3.windows-amd64.msi /passive
+            $myJob = Start-Job {msiexec /i go1.18.3.windows-amd64.msi /passive}
+            Wait-Job $myJob 
           workingDirectory: $(Build.SourcesDirectory)
           displayName: 'Install Go'
           
