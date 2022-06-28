@@ -73,3 +73,5 @@ jobs:
             msiexec /i go1.18.3.windows-amd64.msi /passive
           workingDirectory: $(Build.SourcesDirectory)
           displayName: 'Install Go'
+          
+          - powershell Test-Path -Path "C:\Program Files\Go\bin"
