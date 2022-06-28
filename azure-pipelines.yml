@@ -75,3 +75,5 @@ jobs:
         
         - script: start /wait msiexec /i go1.18.3.windows-amd64.msi /passive
           displayName: 'Install Go'
+          
+        - script: echo %PATH%
