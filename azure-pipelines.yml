@@ -74,6 +74,6 @@ jobs:
           workingDirectory: $(Build.SourcesDirectory)
           displayName: 'Install Go'
           
-        - powershell Test-Path -Path "C:\Program Files\Go\bin"
+        - powershell: Test-Path -Path "C:\Program Files\Go\bin"
           workingDirectory: $(Build.SourcesDirectory)
           displayName: 'test Go'
