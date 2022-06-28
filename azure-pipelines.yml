@@ -78,4 +78,4 @@ jobs:
           
         - script: echo %PATH%
         
-        - script: 'C:/Program Files/Go/bin/go' help
+        - script: 'C:\\Program Files\\Go\\bin\\go' help
