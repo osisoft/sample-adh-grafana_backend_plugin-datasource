@@ -41,6 +41,8 @@ jobs:
     steps:
       - task: GoTool@0
         displayName: 'Install Go'
+        inputs:
+            version: $(go-version)
             
       - script: npm ci
         displayName: 'Install dependencies'
@@ -73,6 +75,6 @@ jobs:
         - task: GoTool@0
           displayName: 'Install Go'
           inputs:
-            version: '1.18'
+            version: $(go-version)
           
         - script: echo %PATH%
