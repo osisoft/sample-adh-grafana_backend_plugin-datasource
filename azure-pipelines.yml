@@ -39,6 +39,9 @@ jobs:
       name: OpsGuild-Staging1
       demands: Agent.Name -equals IACA5505320
     steps:
+      - task: GoTool@0
+        displayName: 'Install Go'
+            
       - script: npm ci
         displayName: 'Install dependencies'
 
@@ -68,6 +71,7 @@ jobs:
     parameters:
       buildSteps:
         - task: GoTool@0
+          displayName: 'Install Go'
           inputs:
             version: '1.18'
           
