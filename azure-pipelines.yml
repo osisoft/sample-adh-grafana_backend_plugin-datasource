@@ -67,13 +67,8 @@ jobs:
   - template: '/miscellaneous/build_templates/code-analysis.yml@templates'
     parameters:
       buildSteps:
-        - powershell: |
-            $ProgressPreference = 'SilentlyContinue'
-            Invoke-WebRequest https://go.dev/dl/go1.18.3.windows-amd64.msi -OutFile go1.18.3.windows-amd64.msi
-          workingDirectory: $(Build.SourcesDirectory)
-          displayName: 'Download Go'
-        
-        - script: start /wait msiexec /i go1.18.3.windows-amd64.msi /passive
-          displayName: 'Install Go'
+        - task: GoTool@0
+          inputs:
+            version: '1.18'
           
         - script: echo %PATH%
