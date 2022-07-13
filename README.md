@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0
 
-This sample demonstrates how to build a [Grafana](https://grafana.com/) data source backend plugin that runs queries against the Sequential Data Store of AVEVA Data Hub or Edge Data Store. The sample performs normal "Get Values" calls against a specified stream in SDS, using the time range of the Grafana dashboard. For more information about backend plugins, refer to the documentation on [Backend plugins](https://grafana.com/docs/grafana/latest/developers/plugins/backend/).
+This sample demonstrates how to build a [Grafana](https://grafana.com/) data source backend plugin that runs queries against the Sequential Data Store of AVEVA Data Hub (ADH) or Edge Data Store. The sample performs normal "Get Values" calls against a specified stream in SDS, using the time range of the Grafana dashboard. For more information about backend plugins, refer to the documentation on [Backend plugins](https://grafana.com/docs/grafana/latest/developers/plugins/backend/).
 
 ## Requirements
 
@@ -42,7 +42,7 @@ This sample demonstrates how to build a [Grafana](https://grafana.com/) data sou
 
 ## Using ADH OAuth login to Grafana
 
-To use AVEVA Data Hub as an Identity provider through OAuth, add the following generic OAuth configuration to your grafana server's custom.ini. An Authorization Code Client with the appropriate redirect URLs will need to be gererated. For more information please refer to Grafana's [Generic OAuth documentation](https://grafana.com/docs/grafana/latest/auth/generic-oauth/).
+To use AVEVA Data Hub as an Identity provider through OAuth, add the following generic OAuth configuration to your grafana server's custom.ini. Please note, you may need to create a new custom.ini if one does not already exist and an Authorization Code Client with the appropriate redirect URLs will need to be generated. For more information please refer to Grafana's [configuration documentation](https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/) or their [Generic OAuth documentation](https://grafana.com/docs/grafana/latest/auth/generic-oauth/).
 
 ```ini
 [auth.generic_oauth]

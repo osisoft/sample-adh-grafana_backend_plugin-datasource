@@ -48,7 +48,7 @@ type CheckHealthResponseBody struct {
 	Id string `json:"Id"`
 }
 
-// NewDataHubDataSource creates a new datasource instance.
+// Creates a new datasource instance.
 func NewDataHubDataSource(settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 	// Get JSON Data to read datasource settings
 	var options DataHubDataSourceOptions
@@ -74,12 +74,12 @@ func NewDataHubDataSource(settings backend.DataSourceInstanceSettings) (instance
 
 // Dispose here tells plugin SDK that plugin wants to clean up resources when a new instance
 // created. As soon as datasource settings change detected by SDK old datasource instance will
-// be disposed and a new one will be created using NewDataHubDataSource factory function.
+// be disposed and a new one will be created using the new instance factory function.
 func (d *DataHubDataSource) Dispose() {
 	// Clean up datasource instance resources.
 }
 
-// QueryData handles multiple queries and returns multiple responses.
+// Handles multiple queries and returns multiple responses.
 func (d *DataHubDataSource) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
 	log.DefaultLogger.Info("QueryData called", "request", req)
 
@@ -88,7 +88,7 @@ func (d *DataHubDataSource) QueryData(ctx context.Context, req *backend.QueryDat
 	if d.oauthPassThru {
 		token = req.Headers["Authorization"]
 		if len(token) == 0 {
-			return nil, fmt.Errorf("unable to retrieve token")
+			return nil, fmt.Errorf("Unable to retrieve token")
 		}
 	} else {
 		var err error
@@ -118,7 +118,7 @@ func (d *DataHubDataSource) QueryData(ctx context.Context, req *backend.QueryDat
 	return response, nil
 }
 
-// query handles the individual queries from QueryData.
+// Handles the individual queries from QueryData.
 func (d *DataHubDataSource) query(_ context.Context, pCtx backend.PluginContext, query backend.DataQuery, token string) (backend.DataResponse, error) {
 	log.DefaultLogger.Info("Running query", "query", query)
 	response := backend.DataResponse{}
@@ -170,7 +170,7 @@ func (d *DataHubDataSource) query(_ context.Context, pCtx backend.PluginContext,
 	return response, err
 }
 
-// CheckHealth handles health checks sent from Grafana to the plugin.
+// Handles health checks sent from Grafana to the plugin.
 func (d *DataHubDataSource) CheckHealth(_ context.Context, req *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
 	log.DefaultLogger.Info("CheckHealth called", "request", req)
 

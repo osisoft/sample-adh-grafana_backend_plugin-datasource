@@ -10,7 +10,7 @@
     "sign": "grafana-toolkit plugin:sign",
     "start": "yarn watch"
   },
-  "author": "Collin",
+  "author": "AVEVA Group plc",
   "license": "Apache-2.0",
   "devDependencies": {
     "@grafana/data": "latest",
