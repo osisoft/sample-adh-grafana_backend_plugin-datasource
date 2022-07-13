@@ -65,7 +65,10 @@ export const ConfigEditor = (props: Props) => {
   if (jsonData.oauthPassThru == null) {
     jsonData.oauthPassThru = false;
   }
-  if (jsonData.type === SdsDataSourceType.EDS && !jsonData.namespaceId) {
+  if (
+    jsonData.type === SdsDataSourceType.EDS &&
+    (!jsonData.namespaceId || edsNamespaceOptions.findIndex((x) => x.value === jsonData.namespaceId) == -1)
+  ) {
     jsonData.namespaceId = 'default';
   }
 
