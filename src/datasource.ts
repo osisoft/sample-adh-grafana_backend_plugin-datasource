@@ -110,13 +110,13 @@ export class DataSource extends DataSourceWithBackend<SdsQuery, SdsDataSourceOpt
 
     const response = await lastValueFrom(observableResponse);
 
-    if (!Array.isArray(response?.data) || response.data.length === 0) {
+    if (!Array.isArray(response?.data) || response?.data.length === 0) {
       return [];
     }
 
     const dataFrame = response.data[0] as DataFrame;
 
-    if (!Array.isArray(dataFrame.fields) || dataFrame.fields.length === 0) {
+    if (!Array.isArray(dataFrame?.fields) || dataFrame?.fields.length === 0) {
       return [];
     }
 
