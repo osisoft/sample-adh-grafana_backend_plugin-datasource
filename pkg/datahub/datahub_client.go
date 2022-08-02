@@ -277,26 +277,7 @@ func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id str
 		return nil, err
 	}
 
-	// create a dataframe
-	frame := data.NewFrame(stream.Name)
-
-	// create columns in dataframe
-	for i := 0; i < len(sdsType.Properties); i++ {
-		typeCodeString := sdsType.Properties[i].SdsType.SdsTypeCode
-		frame.Fields = append(frame.Fields,
-			data.NewField(sdsType.Properties[i].Id, nil, createSdsValueList(typeCodeString)))
-	}
-
-	// add data to rows
-	for i := 0; i < len(sdsData); i++ {
-		row := make([]interface{}, len(sdsType.Properties))
-		for j := 0; j < len(sdsType.Properties); j++ {
-			row[j] = convertSdsValue(sdsType.Properties[j].SdsType.SdsTypeCode, sdsData[i][string(sdsType.Properties[j].Id)])
-		}
-		frame.AppendRow(row...)
-	}
-
-	return frame, nil
+	return createDataFrameFromSdsData(stream.Name, sdsType, sdsData)
 }
 
 func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token string, self string, startIndex string, endIndex string) (*data.Frame, error) {
@@ -336,8 +317,6 @@ func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token strin
 		return nil, err
 	}
 
-	sdsType := sdsResolvedStream.SdsType
-
 	// get data
 	path = (self + "/Data?startIndex=" + startIndex + "&endIndex=" + endIndex)
 	body, err = SdsRequest(d, token, path, communityHeader)
@@ -353,8 +332,12 @@ func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token strin
 		return nil, err
 	}
 
+	return createDataFrameFromSdsData(stream.Name, sdsResolvedStream.SdsType, sdsData)
+}
+
+func createDataFrameFromSdsData(dataFrameName string, sdsType sds.SdsType, sdsData []map[string]interface{}) (*data.Frame, error) {
 	// create a dataframe
-	frame := data.NewFrame(stream.Name)
+	frame := data.NewFrame(dataFrameName)
 
 	// create columns in dataframe
 	for i := 0; i < len(sdsType.Properties); i++ {

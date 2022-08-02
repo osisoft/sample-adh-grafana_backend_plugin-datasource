@@ -136,7 +136,7 @@ func (d *DataHubDataSource) query(_ context.Context, pCtx backend.PluginContext,
 	var err error
 	if d.useCommunity {
 		if strings.EqualFold(qm.Collection, "streams") && qm.Id != "" {
-			log.DefaultLogger.Info("Community stream data query")
+			log.DefaultLogger.Debug("Community stream data query")
 			frame, err = CommunityStreamsDataQuery(d.dataHubClient,
 				d.communityId,
 				token,
@@ -144,12 +144,12 @@ func (d *DataHubDataSource) query(_ context.Context, pCtx backend.PluginContext,
 				query.TimeRange.From.Format(time.RFC3339),
 				query.TimeRange.To.Format(time.RFC3339))
 		} else if strings.EqualFold(qm.Collection, "streams") {
-			log.DefaultLogger.Info("Community stream query")
+			log.DefaultLogger.Debug("Community stream query")
 			frame, err = CommunityStreamsQuery(d.dataHubClient, d.communityId, token, qm.Query)
 		}
 	} else {
 		if strings.EqualFold(qm.Collection, "streams") && qm.Id != "" {
-			log.DefaultLogger.Info("Stream data query")
+			log.DefaultLogger.Debug("Stream data query")
 			frame, err = StreamsDataQuery(d.dataHubClient,
 				d.namespaceId,
 				token,
@@ -157,7 +157,7 @@ func (d *DataHubDataSource) query(_ context.Context, pCtx backend.PluginContext,
 				query.TimeRange.From.Format(time.RFC3339),
 				query.TimeRange.To.Format(time.RFC3339))
 		} else if strings.EqualFold(qm.Collection, "streams") {
-			log.DefaultLogger.Info("Stream query")
+			log.DefaultLogger.Debug("Stream query")
 			frame, err = StreamsQuery(d.dataHubClient, d.namespaceId, token, qm.Query)
 		}
 	}
