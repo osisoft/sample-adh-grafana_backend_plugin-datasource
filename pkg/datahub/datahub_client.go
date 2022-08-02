@@ -151,8 +151,8 @@ func SdsRequest(d *DataHubClient, token string, path string, headers map[string]
 }
 
 func StreamsQuery(d *DataHubClient, namespaceId string, token string, query string) (*data.Frame, error) {
-	basePath := d.resource + "/api/" + d.apiVersion + "/tenants/" + d.tenantId + "/namespaces/" + namespaceId
-	path := (basePath + "/streams?query=" + query)
+	basePath := d.resource + "/api/" + d.apiVersion + "/tenants/" + url.QueryEscape(d.tenantId) + "/namespaces/" + url.QueryEscape(namespaceId)
+	path := (basePath + "/streams?query=" + url.QueryEscape(query))
 
 	body, err := SdsRequest(d, token, path, nil)
 	if err != nil {
@@ -189,9 +189,9 @@ func StreamsQuery(d *DataHubClient, namespaceId string, token string, query stri
 }
 
 func CommunityStreamsQuery(d *DataHubClient, communityId string, token string, query string) (*data.Frame, error) {
-	basePath := d.resource + "/api/" + d.apiVersion + "/search/communities/" + communityId
+	basePath := d.resource + "/api/" + d.apiVersion + "/search/communities/" + url.QueryEscape(communityId)
 
-	path := (basePath + "/streams?query=" + query)
+	path := (basePath + "/streams?query=" + url.QueryEscape(query))
 
 	body, err := SdsRequest(d, token, path, nil)
 	if err != nil {
@@ -228,10 +228,10 @@ func CommunityStreamsQuery(d *DataHubClient, communityId string, token string, q
 }
 
 func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id string, startIndex string, endIndex string) (*data.Frame, error) {
-	basePath := d.resource + "/api/" + d.apiVersion + "/tenants/" + d.tenantId + "/namespaces/" + namespaceId
+	basePath := d.resource + "/api/" + d.apiVersion + "/tenants/" + url.QueryEscape(d.tenantId) + "/namespaces/" + url.QueryEscape(namespaceId)
 
 	// get type Id
-	path := (basePath + "/streams/" + id)
+	path := (basePath + "/streams/" + url.QueryEscape(id))
 	body, err := SdsRequest(d, token, path, nil)
 	if err != nil {
 		return nil, err
@@ -246,7 +246,7 @@ func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id str
 	}
 
 	// get type info
-	path = (basePath + "/types/" + stream.TypeId)
+	path = (basePath + "/types/" + url.QueryEscape(stream.TypeId))
 	body, err = SdsRequest(d, token, path, nil)
 	if err != nil {
 		return nil, err
@@ -263,7 +263,7 @@ func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id str
 	log.DefaultLogger.Info(fmt.Sprint(sdsType))
 
 	// get data
-	path = (basePath + "/streams/" + id + "/Data?startIndex=" + startIndex + "&endIndex=" + endIndex)
+	path = (basePath + "/streams/" + url.QueryEscape(id) + "/Data?startIndex=" + url.QueryEscape(startIndex) + "&endIndex=" + url.QueryEscape(endIndex))
 	body, err = SdsRequest(d, token, path, nil)
 	if err != nil {
 		return nil, err
@@ -284,7 +284,7 @@ func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token strin
 
 	// make a community header
 	communityHeader := map[string]string{
-		"Community-Id": communityId,
+		"Community-Id": url.QueryEscape(communityId),
 	}
 
 	// get stream
@@ -318,7 +318,7 @@ func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token strin
 	}
 
 	// get data
-	path = (self + "/Data?startIndex=" + startIndex + "&endIndex=" + endIndex)
+	path = (self + "/Data?startIndex=" + url.QueryEscape(startIndex) + "&endIndex=" + url.QueryEscape(endIndex))
 	body, err = SdsRequest(d, token, path, communityHeader)
 	if err != nil {
 		return nil, err
