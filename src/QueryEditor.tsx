@@ -8,13 +8,13 @@ import { debounce } from './debounce';
 type Props = QueryEditorProps<DataSource, SdsQuery, SdsDataSourceOptions>;
 
 export const QueryEditor = ({ query, datasource, onChange }: Props) => {
-  query = { ...defaultQuery, ...query };
+  const combinedQuery = { ...defaultQuery, ...query };
 
-  const selectStream: SelectableValue<string> = { label: query.name, value: query.id };
+  const selectStream: SelectableValue<string> = { label: combinedQuery.name, value: combinedQuery.id };
   const [defaultOptions, setDefaultOptions] = React.useState<boolean | Array<SelectableValue<string>>>(true);
 
   const onSelectedStream = (value: SelectableValue<string>) => {
-    onChange({ ...query, id: value.value || '', name: value.label || '' });
+    onChange({ ...combinedQuery, id: value.value || '', name: value.label || '' });
   };
 
   const debouncedGetStreams = debounce(

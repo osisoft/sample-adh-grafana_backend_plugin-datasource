@@ -115,6 +115,8 @@ func GetClientToken(d *DataHubClient) (string, error) {
 }
 
 func SdsRequest(d *DataHubClient, token string, path string, headers map[string]string) ([]byte, error) {
+	log.DefaultLogger.Debug("Making query to", path)
+	
 	// request data or collection items
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {

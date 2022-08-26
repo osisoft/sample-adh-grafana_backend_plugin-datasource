@@ -13,13 +13,10 @@
   "author": "AVEVA Group plc",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@grafana/data": "latest",
-    "@grafana/runtime": "^9.1.0-beta1",
-    "@grafana/toolkit": "latest",
-    "@grafana/ui": "latest",
-    "@types/debounce-promise": "latest",
-    "@types/lodash": "latest",
-    "eslint-plugin-react-hooks": "latest"
+    "@grafana/data": "^8.5.10",
+    "@grafana/runtime": "^8.5.10",
+    "@grafana/toolkit": "^8.5.10",
+    "@grafana/ui": "^8.5.10"
   },
   "resolutions": {
     "rxjs": "latest"
@@ -28,6 +25,7 @@
     "node": ">=14"
   },
   "dependencies": {
+    "eslint-plugin-prettier": "^4.2.1",
     "postcss": "^8.4.13"
   }
 }

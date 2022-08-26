@@ -26,8 +26,8 @@ export class DataSource extends DataSourceWithBackend<SdsQuery, SdsDataSourceOpt
   }
 
   queryEDS(request: DataQueryRequest<SdsQuery>): Observable<DataQueryResponse> {
-    const from = request.range?.from.utc().format();
-    const to = request.range?.to.utc().format();
+    const from = request.range.from.utc().format();
+    const to = request.range.to.utc().format();
 
     const requests = request.targets.map((target) => {
       if (target.id === '') {
