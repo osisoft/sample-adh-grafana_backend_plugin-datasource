@@ -2,11 +2,14 @@
 # Compile frontend component
 #
 FROM node:alpine3.10 AS appbuild1
+
 RUN apk add g++ make python
 WORKDIR /usr/src/app
 COPY . .
 RUN npm ci
 RUN npm run build
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
 
 # Build Stage 2
 # Compile backend component
@@ -14,12 +17,10 @@ RUN npm run build
 FROM golang:alpine as appbuild2
 
 RUN go install github.com/magefile/mage@latest
-
 WORKDIR /usr/src/app
 COPY . .
 RUN go get -u github.com/grafana/grafana-plugin-sdk-go
 RUN go mod tidy
-
 RUN mage -v
 
 # base grafana image
