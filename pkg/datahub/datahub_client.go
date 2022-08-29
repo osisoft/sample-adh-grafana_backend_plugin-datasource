@@ -6,12 +6,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
-	"github.com/osisoft/sample-adh-grafana_backend_plugin-datasource/pkg/datahub/community"
-	"github.com/osisoft/sample-adh-grafana_backend_plugin-datasource/pkg/datahub/sds"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/osisoft/sample-adh-grafana_backend_plugin-datasource/pkg/datahub/community"
+	"github.com/osisoft/sample-adh-grafana_backend_plugin-datasource/pkg/datahub/sds"
 )
 
 type DataHubClient struct {
@@ -116,7 +117,7 @@ func GetClientToken(d *DataHubClient) (string, error) {
 
 func SdsRequest(d *DataHubClient, token string, path string, headers map[string]string) ([]byte, error) {
 	log.DefaultLogger.Debug("Making query to", path)
-	
+
 	// request data or collection items
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
@@ -216,7 +217,9 @@ func CommunityStreamsQuery(d *DataHubClient, communityId string, token string, q
 	ids := make([]string, len(streams))
 	names := make([]string, len(streams))
 	for i := 0; i < len(streams); i++ {
-		ids[i] = streams[i].Self
+		// replace api version for compatibility with preview route
+		// this can be removed once community features are released
+		ids[i] = strings.Replace(streams[i].Self, "/v1/", "/"+d.apiVersion+"/", 1)
 		names[i] = streams[i].Name
 	}
 
