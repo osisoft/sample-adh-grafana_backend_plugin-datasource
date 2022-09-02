@@ -4,10 +4,9 @@ go 1.16
 
 require (
 	github.com/fatih/color v1.13.0 // indirect
-	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/flatbuffers v2.0.6+incompatible // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
-	github.com/grafana/grafana-plugin-sdk-go v0.136.0
+	github.com/grafana/grafana-plugin-sdk-go v0.139.0
 	github.com/hashicorp/go-hclog v1.2.0 // indirect
 	github.com/hashicorp/go-plugin v1.4.4 // indirect
 	github.com/hashicorp/yamux v0.0.0-20211028200310-0bc27b27de87 // indirect
