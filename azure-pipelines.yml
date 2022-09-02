@@ -1,0 +1,88 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+schedules:
+  - cron: '0 0 * * 0'
+    displayName: Weekly build
+    branches:
+      include:
+        - main
+    always: true
+
+resources:
+  repositories:
+    - repository: OpsGuildAutomationRepo
+      type: git
+      name: Engineering/OpsGuild.Automation
+      ref: refs/heads/main
+    - repository: templates
+      type: github
+      name: osisoft/OSI-Samples
+      endpoint: osisoft/OSI-Samples
+
+variables:
+  - template: '/miscellaneous/build_templates/variables.yml@templates'
+  - name: analysisProject
+    value: sample-adh-grafana_backend_plugin-datasource
+
+parameters:
+  - name: pool
+    default: 00-OSIManaged-Containers
+  - name: containerDemands
+    type: object
+    default: ['Agent.OS -equals Windows_NT']
+
+jobs:
+  - job: Tests
+    condition: ne(variables['Build.Reason'], 'Schedule')
+    pool:
+      name: ${{ parameters.pool }}
+      demands: ${{ parameters.containerDemands }}
+    steps:
+      - task: GoTool@0
+        displayName: 'Install Go'
+        inputs:
+            version: '$(go-version)'
+            
+      - script: npm ci
+        displayName: 'Install dependencies'
+
+      - script: npm test
+        displayName: 'Run TS tests'
+      
+      - script: go get -u github.com/grafana/grafana-plugin-sdk-go
+        displayName: 'Install Go SDK for Grafana'
+        
+      - script: go mod tidy
+        displayName: 'Install dependencies'
+      
+      - script: go test -v ./...
+        displayName: 'Run Go Tests'
+
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: '*.xml'
+          failTaskOnFailedTests: true
+          searchFolder: '$(Build.SourcesDirectory)/coverage'
+          testRunTitle: '$(Agent.JobName) on $(Agent.OS)'
+        displayName: 'Publish test results'
+        condition: always()
+      
+  - template: '/miscellaneous/build_templates/code-analysis.yml@templates'
+    parameters:
+      buildSteps:
+        - task: GoTool@0
+          displayName: 'Install Go'
+          inputs:
+            version: '$(go-version)'
+          
+        - script: echo %PATH%

@@ -1,0 +1,31 @@
+{
+  "name": "sds-grafana-datasource",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "grafana-toolkit plugin:build",
+    "test": "grafana-toolkit plugin:test",
+    "dev": "grafana-toolkit plugin:dev",
+    "watch": "grafana-toolkit plugin:dev --watch",
+    "sign": "grafana-toolkit plugin:sign",
+    "start": "yarn watch"
+  },
+  "author": "AVEVA Group plc",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@grafana/data": "^9.1.1",
+    "@grafana/runtime": "^9.1.1",
+    "@grafana/toolkit": "^9.1.1",
+    "@grafana/ui": "^9.1.1"
+  },
+  "resolutions": {
+    "rxjs": "latest"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "dependencies": {
+    "eslint-plugin-prettier": "^4.2.1",
+    "postcss": "^8.4.13"
+  }
+}
