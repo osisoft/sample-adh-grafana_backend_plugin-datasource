@@ -123,7 +123,7 @@ export class DataSource extends DataSourceWithBackend<SdsQuery, SdsDataSourceOpt
     const ids = dataFrame.fields[dataFrame.fields.findIndex((field) => field.name === 'Id')].values.toArray();
     const names = dataFrame.fields[dataFrame.fields.findIndex((field) => field.name === 'Name')].values.toArray();
 
-    var selectables = [];
+    const selectables = [];
     for (let i = 0; i < ids.length; i++) {
       selectables.push({ value: ids[i], label: names[i] });
     }

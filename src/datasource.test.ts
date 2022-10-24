@@ -44,8 +44,9 @@ describe('DataSource', () => {
       oauthPassThru: oauthPassThru,
       namespaceId: namespaceId,
       useCommunity: useCommunity,
-      communityId: communityId,
+      communityId: communityId
     },
+    readOnly: false
   };
   const backendSrv = {
     fetch(options: BackendSrvRequest): Observable<FetchResponse<unknown>> {
