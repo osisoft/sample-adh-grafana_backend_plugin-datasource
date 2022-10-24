@@ -51,7 +51,10 @@ jobs:
         displayName: 'Install Go'
         inputs:
             version: '$(go-version)'
-            
+      
+      - script: npm i -D typescript
+        displayName: 'Install typescript'
+      
       - script: npm ci
         displayName: 'Install dependencies'
 
