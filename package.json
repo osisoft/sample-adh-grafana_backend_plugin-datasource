@@ -16,7 +16,7 @@
     "@grafana/data": "^9.2.6",
     "@grafana/runtime": "^9.2.6",
     "@grafana/toolkit": "^9.2.6",
-    "@grafana/ui": "^9.2.6"
+    "@grafana/ui": "^9.3.1"
   },
   "resolutions": {
     "rxjs": "latest"
