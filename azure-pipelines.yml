@@ -51,7 +51,7 @@ jobs:
         displayName: 'Install Go'
         inputs:
             version: '$(go-version)'
-            
+      
       - script: npm ci
         displayName: 'Install dependencies'
 
