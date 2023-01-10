@@ -90,7 +90,7 @@ use_pkce = true
 
 1. Open a command prompt inside this folder
 1. Install dependencies, using `go mod tidy`
-1. Run the tests, using `npm test`
+1. Run the tests, using `go test`
 
 ---
 
