@@ -14,7 +14,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@grafana/data": "^9.3.2",
-    "@grafana/runtime": "^9.3.2",
+    "@grafana/runtime": "^9.4.1",
     "@grafana/toolkit": "^9.3.2",
     "@grafana/ui": "^9.3.2"
   },
