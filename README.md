@@ -1,6 +1,6 @@
 # Sequential Data Store Data Source Backend Plugin Sample
 
-**Version:** 1.0.1
+**Version:** 1.0.2
 
 [![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/ADH/osisoft.sample-adh-grafana_backend_plugin-datasource?repoName=osisoft%2Fsample-adh-grafana_backend_plugin-datasource&branchName=main)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=4858&repoName=osisoft%2Fsample-adh-grafana_backend_plugin-datasource&branchName=main)
 
