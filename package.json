@@ -1,20 +1,19 @@
 {
-  "name": "sds-grafana-datasource",
-  "version": "1.0.2",
+  "name": "adh-grafana-datasource",
+  "version": "1.0.3",
   "description": "",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
     "dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",
-    "e2e": "npm exec cypress install && npm exec grafana-e2e run",
-    "e2e:update": "npm exec cypress install && npm exec grafana-e2e run --update-screenshots",
-    "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
-    "lint:fix": "npm run lint --fix",
-    "server": "docker-compose up --build",
-    "sign": "npx --yes @grafana/sign-plugin@latest",
-    "start": "yarn watch",
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
+    "lint:fix": "npm run lint -- --fix",
+    "e2e": "npm exec cypress install && npm exec grafana-e2e run",
+    "e2e:update": "npm exec cypress install && npm exec grafana-e2e run --update-screenshots",
+    "server": "docker-compose up --build",
+    "sign": "npx --yes @grafana/sign-plugin@latest"
   },
   "author": "AVEVA Group plc",
   "license": "Apache-2.0",
@@ -55,24 +54,18 @@
     "webpack-cli": "^5.1.4",
     "webpack-livereload-plugin": "^3.0.2"
   },
-  "resolutions": {
-    "rxjs": "latest"
-  },
   "engines": {
-    "node": ">=14"
+    "node": ">=20"
   },
   "dependencies": {
     "@emotion/css": "11.10.6",
-    "@grafana/data": "^9.4.7",
-    "@grafana/runtime": "^9.4.7",
+    "@grafana/data": "10.0.3",
+    "@grafana/runtime": "10.0.3",
+    "@grafana/ui": "10.0.3",
     "@grafana/schema": "10.0.3",
-    "@grafana/ui": "^9.4.7",
-    "eslint-plugin-prettier": "^4.2.1",
-    "postcss": "^8.4.21",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tslib": "2.5.3",
-    "typescript": "^5.0.2"
+    "tslib": "2.5.3"
   },
   "packageManager": "npm@10.2.4"
 }

@@ -1,14 +1,14 @@
 import React from 'react';
 import { AsyncSelect, InlineFormLabel } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { DataSource } from './datasource';
-import { defaultQuery, SdsDataSourceOptions, SdsQuery } from './types';
-import { debounce } from './debounce';
+import { DataSource } from '../datasource';
+import { DEFAULT_QUERY, AdhDataSourceOptions, AdhQuery } from '../types';
+import { debounce } from '../debounce';
 
-type Props = QueryEditorProps<DataSource, SdsQuery, SdsDataSourceOptions>;
+type Props = QueryEditorProps<DataSource, AdhQuery, AdhDataSourceOptions>;
 
 export const QueryEditor = ({ query, datasource, onChange }: Props) => {
-  const combinedQuery = { ...defaultQuery, ...query };
+  const combinedQuery = { ...DEFAULT_QUERY, ...query };
 
   const selectStream: SelectableValue<string> = { label: combinedQuery.name, value: combinedQuery.id };
   const [defaultOptions, setDefaultOptions] = React.useState<boolean | Array<SelectableValue<string>>>(true);

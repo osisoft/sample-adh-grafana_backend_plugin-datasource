@@ -1,14 +1,14 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
-  "name": "AVEVA Sequential Data Store (SAMPLE)",
-  "id": "aveva-sds-datasource",
+  "name": "AVEVA Data Hub (SAMPLE)",
+  "id": "aveva-adh-datasource",
   "alerting": true,
   "metrics": true,
   "backend": true,
-  "executable": "gpx_aveva-sds-datasource",
+  "executable": "gpx_aveva-data-hub-datasource",
   "info": {
-    "description": "Simple SDS backend datasource plugin sample",
+    "description": "Simple AVEVA Data Hub backend datasource plugin sample",
     "author": {
       "name": "AVEVA Group plc",
       "url": "https://aveva.com"
@@ -21,19 +21,18 @@
     "links": [
       {
         "name": "GitHub",
-        "url": "https://github.com/osisoft/sample-adh-grafana_backend_plugin-datasource"
+        "url": "https://github.com/AVEVA/sample-adh-grafana_backend_plugin-datasource"
       },
       {
         "name": "Apache-2 License",
-        "url": "https://github.com/osisoft/sample-adh-grafana_backend_plugin-datasource/LICENSE"
+        "url": "https://github.com/AVEVA/sample-adh-grafana_backend_plugin-datasource/LICENSE"
       }
     ],
     "screenshots": [
       { "name": "Data Hub Configuration", "path": "img/ADHConfig.png" },
-      { "name": "Edge Data Store Configuration", "path": "img/EDSConfig.png" },
       { "name": "Example Data Query", "path": "img/DataQuery.png" }
     ],
-    "version": "1.0.0",
+    "version": "1.0.3",
     "updated": "%TODAY%"
   },
   "dependencies": {

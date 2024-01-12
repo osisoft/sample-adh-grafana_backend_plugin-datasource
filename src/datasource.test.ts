@@ -1,8 +1,28 @@
-import { DataQueryRequest, DataSourceInstanceSettings, FieldType, MutableDataFrame } from '@grafana/data';
-import { SdsDataSourceOptions, SdsDataSourceType, SdsQuery } from 'types';
-import { DataSource } from 'datasource';
+import { DataSourceInstanceSettings, FieldType, MutableDataFrame } from '@grafana/data';
 import { BackendSrvRequest, FetchResponse } from '@grafana/runtime';
 import { Observable } from 'rxjs';
+import { DataSource } from './datasource';
+import { AdhDataSourceOptions } from './types';
+
+
+const backendSrv = {
+  fetch(options: BackendSrvRequest): Observable<FetchResponse<unknown>> {
+    const edsResponse = {
+      data: [
+        {
+          TimeStamp: '2020-01-01',
+          Boolean: true,
+          Number: 1,
+          String: 'A',
+        },
+      ],
+    } as FetchResponse;
+
+    return new Observable((subscriber) => {
+      subscriber.next(edsResponse);
+    });
+  },
+};
 
 jest.mock('@grafana/runtime', () => {
   const original = jest.requireActual('@grafana/runtime');
@@ -12,12 +32,12 @@ jest.mock('@grafana/runtime', () => {
       getVariables: () => [],
       replace: (s: string) => s,
     }),
+    getBackendSrv: () => (backendSrv)
   };
 });
 
 describe('DataSource', () => {
   const url = 'URL';
-  const edsPort = 'PORT';
   const resource = 'URL';
   const apiVersion = 'VERSION';
   const tenantId = 'TENANT';
@@ -26,7 +46,7 @@ describe('DataSource', () => {
   const namespaceId = 'NAMESPACE';
   const useCommunity = false;
   const communityId = 'COMMUNITY';
-  const adhSettings: DataSourceInstanceSettings<SdsDataSourceOptions> = {
+  const adhSettings: DataSourceInstanceSettings<AdhDataSourceOptions> = {
     id: 0,
     uid: '',
     name: '',
@@ -35,8 +55,6 @@ describe('DataSource', () => {
     url,
     meta: null as any,
     jsonData: {
-      type: SdsDataSourceType.ADH,
-      edsPort: edsPort,
       resource: resource,
       apiVersion: apiVersion,
       tenantId: tenantId,
@@ -48,106 +66,10 @@ describe('DataSource', () => {
     },
     readOnly: false,
   };
-  const backendSrv = {
-    fetch(options: BackendSrvRequest): Observable<FetchResponse<unknown>> {
-      const edsResponse = {
-        data: [
-          {
-            TimeStamp: '2020-01-01',
-            Boolean: true,
-            Number: 1,
-            String: 'A',
-          },
-        ],
-      } as FetchResponse;
-
-      return new Observable((subscriber) => {
-        subscriber.next(edsResponse);
-      });
-    },
-  };
-
-  describe('constructor', () => {
-    it('should use passed in data source information', () => {
-      const datasource = new DataSource(adhSettings, backendSrv as any);
-      expect(datasource.type).toEqual(SdsDataSourceType.ADH);
-      expect(datasource.edsPort).toEqual(edsPort);
-    });
-  });
-
-  describe('queryEDS', () => {
-    it('should query with the expected parameters', (done) => {
-      const options = {
-        range: {
-          from: {
-            utc: () => ({
-              format: () => 'FROM',
-            }),
-          },
-          to: {
-            utc: () => ({
-              format: () => 'TO',
-            }),
-          },
-        },
-        targets: [
-          {
-            refId: 'REFID',
-            name: 'STREAM',
-            querytext: 'QUERYTEXT',
-            collection: 'COLLECTION',
-            id: 'ID',
-          },
-        ],
-      } as unknown as DataQueryRequest<SdsQuery>;
-
-      const datasource = new DataSource(adhSettings, backendSrv as any);
-
-      const results = datasource.queryEDS(options);
-
-      results.subscribe({
-        next(result) {
-          expect(JSON.stringify(result)).toEqual(
-            JSON.stringify({
-              data: [
-                new MutableDataFrame({
-                  refId: 'REFID',
-                  name: 'STREAM',
-                  fields: [
-                    {
-                      name: 'TimeStamp',
-                      type: FieldType.time,
-                      values: [Date.parse('2020-01-01')],
-                    },
-                    {
-                      name: 'Boolean',
-                      type: FieldType.number,
-                      values: [1],
-                    },
-                    {
-                      name: 'Number',
-                      type: FieldType.number,
-                      values: [1],
-                    },
-                    {
-                      name: 'String',
-                      type: FieldType.string,
-                      values: ['A'],
-                    },
-                  ],
-                }),
-              ],
-            })
-          );
-          done();
-        },
-      });
-    });
-  });
 
   describe('getStreams', () => {
     it('should query for streams', (done) => {
-      const datasource = new DataSource(adhSettings, backendSrv as any);
+      const datasource = new DataSource(adhSettings);
 
       datasource.query = jest.fn(() => {
         return new Observable((subscriber) => {
@@ -176,7 +98,7 @@ describe('DataSource', () => {
         });
       });
 
-      const results = datasource.getStreams('QUERY', () => {});
+      const results = datasource.getStreams('QUERY', () => { });
 
       results.then((r) => {
         expect(r).toEqual([

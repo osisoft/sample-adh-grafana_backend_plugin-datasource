@@ -2,7 +2,7 @@ version: '3.0'
 
 services:
   grafana:
-    container_name: 'aveva-sds-datasource'
+    container_name: 'aveva-adh-datasource'
     platform: "linux/amd64"
     build:
       context: ./.config
@@ -12,5 +12,5 @@ services:
     ports:
       - 3000:3000/tcp
     volumes:
-      - ./dist:/var/lib/grafana/plugins/aveva-sds-datasource
+      - ./dist:/var/lib/grafana/plugins/aveva-adh-datasource
       - ./provisioning:/etc/grafana/provisioning

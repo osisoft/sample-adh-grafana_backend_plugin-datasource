@@ -49,7 +49,7 @@ type CheckHealthResponseBody struct {
 }
 
 // Creates a new datasource instance.
-func NewDataHubDataSource(settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
+func NewDataHubDataSource(_ context.Context, settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 	// Get JSON Data to read datasource settings
 	var options DataHubDataSourceOptions
 	err := json.Unmarshal(settings.JSONData, &options)
@@ -60,7 +60,7 @@ func NewDataHubDataSource(settings backend.DataSourceInstanceSettings) (instance
 
 	// Read Client Secret from Secure JSON Data
 	var secureData = settings.DecryptedSecureJSONData
-	clientSecret, _ := secureData["clientSecret"]
+	clientSecret := secureData["clientSecret"]
 
 	client := NewDataHubClient(options.Resource, options.ApiVersion, options.TenantId, options.ClientId, clientSecret)
 	return &DataHubDataSource{
@@ -88,7 +88,7 @@ func (d *DataHubDataSource) QueryData(ctx context.Context, req *backend.QueryDat
 	if d.oauthPassThru {
 		token = req.Headers["Authorization"]
 		if len(token) == 0 {
-			return nil, fmt.Errorf("Unable to retrieve token")
+			return nil, fmt.Errorf("unable to retrieve token")
 		}
 	} else {
 		var err error

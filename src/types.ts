@@ -1,27 +1,21 @@
-import { DataQuery, DataSourceJsonData } from '@grafana/data';
+import { DataSourceJsonData } from '@grafana/data';
+import { DataQuery } from '@grafana/schema';
 
-export enum SdsDataSourceType {
-  ADH = 'ADH',
-  EDS = 'EDS',
-}
-
-export interface SdsQuery extends DataQuery {
+export interface AdhQuery extends DataQuery {
   collection: string;
   queryText: string;
   id: string;
   name: string;
 }
 
-export const defaultQuery: Partial<SdsQuery> = {
+export const DEFAULT_QUERY: Partial<AdhQuery> = {
   collection: 'streams',
   queryText: '',
   id: '',
   name: '',
 };
 
-export interface SdsDataSourceOptions extends DataSourceJsonData {
-  type: SdsDataSourceType;
-  edsPort: string;
+export interface AdhDataSourceOptions extends DataSourceJsonData {
   resource: string;
   apiVersion: string;
   tenantId: string;
@@ -32,6 +26,6 @@ export interface SdsDataSourceOptions extends DataSourceJsonData {
   namespaceId: string;
 }
 
-export interface SdsDataSourceSecureOptions {
+export interface AdhDataSourceSecureOptions {
   clientSecret: string;
 }
