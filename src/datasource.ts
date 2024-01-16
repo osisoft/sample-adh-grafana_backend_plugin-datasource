@@ -11,10 +11,14 @@ import { lastValueFrom } from 'rxjs';
 import { Dispatch, SetStateAction } from 'react';
 
 export class DataSource extends DataSourceWithBackend<AdhQuery, AdhDataSourceOptions> {
-
-  /** @ngInject */
   constructor(instanceSettings: DataSourceInstanceSettings<AdhDataSourceOptions>) {
     super(instanceSettings);
+  }
+
+  async getServiceInstances(
+    stateAction: Dispatch<SetStateAction<boolean | Array<SelectableValue<string>>>>
+  ): Promise<Array<SelectableValue<string>>> {
+
   }
 
   async getStreams(
@@ -22,7 +26,7 @@ export class DataSource extends DataSourceWithBackend<AdhQuery, AdhDataSourceOpt
     stateAction: Dispatch<SetStateAction<boolean | Array<SelectableValue<string>>>>
   ): Promise<Array<SelectableValue<string>>> {
     const observableResponse = this.query({
-      targets: [{ ...DEFAULT_QUERY, refId: 'adh-stream-autocomplete', queryText: query, collection: 'streams', id: '' }],
+      targets: [{ ...DEFAULT_QUERY, refId: 'adh-stream-autocomplete', urlParameters: { 'query': query }, serviceId: 'sds', serviceInstance: '' }],
     } as DataQueryRequest<AdhQuery>);
 
     const response = await lastValueFrom(observableResponse);

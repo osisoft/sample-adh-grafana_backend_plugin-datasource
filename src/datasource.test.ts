@@ -39,13 +39,9 @@ jest.mock('@grafana/runtime', () => {
 describe('DataSource', () => {
   const url = 'URL';
   const resource = 'URL';
-  const apiVersion = 'VERSION';
   const tenantId = 'TENANT';
   const clientId = 'CLIENT';
   const oauthPassThru = false;
-  const namespaceId = 'NAMESPACE';
-  const useCommunity = false;
-  const communityId = 'COMMUNITY';
   const adhSettings: DataSourceInstanceSettings<AdhDataSourceOptions> = {
     id: 0,
     uid: '',
@@ -56,13 +52,9 @@ describe('DataSource', () => {
     meta: null as any,
     jsonData: {
       resource: resource,
-      apiVersion: apiVersion,
-      tenantId: tenantId,
+      accountId: tenantId,
       clientId: clientId,
       oauthPassThru: oauthPassThru,
-      namespaceId: namespaceId,
-      useCommunity: useCommunity,
-      communityId: communityId,
     },
     readOnly: false,
   };

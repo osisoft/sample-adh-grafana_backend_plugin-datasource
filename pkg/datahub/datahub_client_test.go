@@ -18,10 +18,8 @@ type Tests struct {
 	expectedError error
 }
 
-var apiVersion = "v1"
-var tenantId = "default"
-var namespaceId = "default"
-var communityId = "default"
+var accountId = "default"
+var serviceInstanceId = "default"
 
 func TestStreamsQuery(t *testing.T) {
 	tests := []Tests{
@@ -68,8 +66,8 @@ func TestStreamsQuery(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			defer test.server.Close()
 
-			client := NewDataHubClient(test.server.URL, apiVersion, tenantId, "", "")
-			resp, err := StreamsQuery(&client, namespaceId, "token", "")
+			client := NewDataHubClient(test.server.URL, accountId, "", "")
+			resp, err := StreamsQuery(&client, serviceInstanceId, "token", "")
 
 			if !reflect.DeepEqual(resp, test.response) {
 				t.Errorf("FAILED: expected %v, got %v\n", test.response, resp)
@@ -82,7 +80,7 @@ func TestStreamsQuery(t *testing.T) {
 }
 
 func TestStreamsDataQuery(t *testing.T) {
-	basePath := "/api/" + apiVersion + "/tenants/" + tenantId + "/namespaces/" + namespaceId
+	basePath := "/api/account/" + accountId + "/sds/" + serviceInstanceId + "/v1"
 	mux := http.NewServeMux()
 
 	mux.HandleFunc(basePath+"/streams/StreamId1", func(w http.ResponseWriter, r *http.Request) {
@@ -200,8 +198,8 @@ func TestStreamsDataQuery(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			defer test.server.Close()
 
-			client := NewDataHubClient(test.server.URL, apiVersion, tenantId, "", "")
-			resp, err := StreamsDataQuery(&client, namespaceId, "token", "StreamId1", "", "")
+			client := NewDataHubClient(test.server.URL, accountId, "", "")
+			resp, err := StreamsDataQuery(&client, serviceInstanceId, "token", "StreamId1", "", "")
 
 			if !reflect.DeepEqual(resp, test.response) {
 				t.Errorf("FAILED: expected %v, got %v\n", test.response, resp)
@@ -213,7 +211,7 @@ func TestStreamsDataQuery(t *testing.T) {
 	}
 }
 
-func TestCommunityStreamsQuery(t *testing.T) {
+/*func TestCommunityStreamsQuery(t *testing.T) {
 	tests := []Tests{
 		{
 			name: "community-streams-query",
@@ -278,10 +276,10 @@ func TestCommunityStreamsQuery(t *testing.T) {
 			}
 		})
 	}
-}
+}*/
 
-func TestCommunityStreamsDataQuery(t *testing.T) {
-	basePath := "/api/" + apiVersion + "/tenants/" + tenantId + "/namespaces/" + namespaceId
+/*func TestCommunityStreamsDataQuery(t *testing.T) {
+	basePath := "/api/" + apiVersion + "/tenants/" + accountId + "/namespaces/" + serviceInstanceId
 	mux := http.NewServeMux()
 
 	mux.HandleFunc(basePath+"/streams/StreamId1", func(w http.ResponseWriter, r *http.Request) {
@@ -400,7 +398,7 @@ func TestCommunityStreamsDataQuery(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			defer test.server.Close()
 
-			client := NewDataHubClient(test.server.URL, apiVersion, tenantId, "", "")
+			client := NewDataHubClient(test.server.URL, apiVersion, accountId, "", "")
 			resp, err := CommunityStreamsDataQuery(&client, communityId, "token", test.server.URL+basePath+"/streams/StreamId1", "", "")
 
 			if !reflect.DeepEqual(resp, test.response) {
@@ -411,4 +409,4 @@ func TestCommunityStreamsDataQuery(t *testing.T) {
 			}
 		})
 	}
-}
+}*/

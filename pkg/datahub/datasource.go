@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
@@ -21,27 +20,35 @@ var (
 
 type DataHubDataSource struct {
 	dataHubClient *DataHubClient
-	namespaceId   string
-	communityId   string
 	oauthPassThru bool
-	useCommunity  bool
 }
 
 type DataHubDataSourceOptions struct {
 	Resource      string `json:"resource"`
-	ApiVersion    string `json:"apiVersion"`
-	TenantId      string `json:"tenantId"`
-	NamespaceId   string `json:"namespaceId"`
-	UseCommunity  bool   `json:"useCommunity"`
-	CommunityId   string `json:"communityId"`
+	AccountId     string `json:"accountId"`
 	ClientId      string `json:"clientId"`
 	OauthPassThru bool   `json:"oauthPassThru"`
 }
 
+type ServiceId string
+
+const (
+	Sds ServiceId = "sds"
+)
+
+type ServiceRequest string
+
+const (
+	ServiceInstances ServiceRequest = "serviceInstances"
+	Streams          ServiceRequest = "streams"
+	StreamData       ServiceRequest = "streamData"
+)
+
 type QueryModel struct {
-	Collection string `json:"collection"`
-	Query      string `json:"queryText"`
-	Id         string `json:"id"`
+	ServiceId       ServiceId         `json:"serviceId"`
+	ServiceInstance string            `json:"serviceInstance"`
+	ServiceRequest  ServiceRequest    `json:"serviceRequest"`
+	UrlParameters   map[string]string `json:"urlParameters"`
 }
 
 type CheckHealthResponseBody struct {
@@ -62,13 +69,10 @@ func NewDataHubDataSource(_ context.Context, settings backend.DataSourceInstance
 	var secureData = settings.DecryptedSecureJSONData
 	clientSecret := secureData["clientSecret"]
 
-	client := NewDataHubClient(options.Resource, options.ApiVersion, options.TenantId, options.ClientId, clientSecret)
+	client := NewDataHubClient(options.Resource, options.AccountId, options.ClientId, clientSecret)
 	return &DataHubDataSource{
 		dataHubClient: &client,
-		namespaceId:   options.NamespaceId,
-		communityId:   options.CommunityId,
 		oauthPassThru: options.OauthPassThru,
-		useCommunity:  options.UseCommunity,
 	}, nil
 }
 
@@ -134,32 +138,21 @@ func (d *DataHubDataSource) query(_ context.Context, pCtx backend.PluginContext,
 	// determine what type of query to use
 	frame := data.NewFrame("response")
 	var err error
-	if d.useCommunity {
-		if strings.EqualFold(qm.Collection, "streams") && qm.Id != "" {
-			log.DefaultLogger.Debug("Community stream data query")
-			frame, err = CommunityStreamsDataQuery(d.dataHubClient,
-				d.communityId,
-				token,
-				qm.Id,
-				query.TimeRange.From.Format(time.RFC3339),
-				query.TimeRange.To.Format(time.RFC3339))
-		} else if strings.EqualFold(qm.Collection, "streams") {
-			log.DefaultLogger.Debug("Community stream query")
-			frame, err = CommunityStreamsQuery(d.dataHubClient, d.communityId, token, qm.Query)
-		}
-	} else {
-		if strings.EqualFold(qm.Collection, "streams") && qm.Id != "" {
-			log.DefaultLogger.Debug("Stream data query")
-			frame, err = StreamsDataQuery(d.dataHubClient,
-				d.namespaceId,
-				token,
-				qm.Id,
-				query.TimeRange.From.Format(time.RFC3339),
-				query.TimeRange.To.Format(time.RFC3339))
-		} else if strings.EqualFold(qm.Collection, "streams") {
-			log.DefaultLogger.Debug("Stream query")
-			frame, err = StreamsQuery(d.dataHubClient, d.namespaceId, token, qm.Query)
-		}
+	switch qm.ServiceRequest {
+	case ServiceRequest(ServiceInstances):
+		log.DefaultLogger.Debug("Service instances query")
+		frame, err = ServiceInstanceQuery(d.dataHubClient, token)
+	case ServiceRequest(Streams):
+		log.DefaultLogger.Debug("Streams query")
+		frame, err = StreamsQuery(d.dataHubClient, qm.ServiceInstance, token, qm.UrlParameters["query"])
+	case ServiceRequest(StreamData):
+		log.DefaultLogger.Debug("Stream data query")
+		frame, err = StreamsDataQuery(d.dataHubClient,
+			qm.ServiceInstance,
+			token,
+			qm.UrlParameters["id"],
+			query.TimeRange.From.Format(time.RFC3339),
+			query.TimeRange.To.Format(time.RFC3339))
 	}
 
 	// add the frames to the response.
@@ -197,25 +190,9 @@ func (d *DataHubDataSource) CheckHealth(_ context.Context, req *backend.CheckHea
 	}
 
 	// Make a request to test the token
-	var path string
-	if d.useCommunity {
-		path = d.dataHubClient.resource + "/api/" + d.dataHubClient.apiVersion + "/tenants/" + d.dataHubClient.tenantId + "/communities/" + d.communityId
-	} else {
-		path = d.dataHubClient.resource + "/api/" + d.dataHubClient.apiVersion + "/tenants/" + d.dataHubClient.tenantId + "/namespaces/" + d.namespaceId
-	}
-
-	body, err := SdsRequest(d.dataHubClient, token, path, nil)
+	_, err := ServiceInstanceQuery(d.dataHubClient, token)
 	if err != nil {
 		log.DefaultLogger.Warn("Error test request health check", err.Error())
-		status = backend.HealthStatusError
-		message = "Invalid Configuration"
-	}
-
-	var responseJson CheckHealthResponseBody
-
-	err = json.Unmarshal(body, &responseJson)
-	if err != nil {
-		log.DefaultLogger.Warn("Error parsing resonse health check", err.Error())
 		status = backend.HealthStatusError
 		message = "Invalid Configuration"
 	}

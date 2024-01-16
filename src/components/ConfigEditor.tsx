@@ -38,9 +38,6 @@ export const ConfigEditor = (props: Props) => {
   if (!jsonData.resource) {
     jsonData.resource = 'https://uswe.datahub.connect.aveva.com';
   }
-  if (!jsonData.apiVersion) {
-    jsonData.apiVersion = 'v1';
-  }
   if (jsonData.oauthPassThru == null) {
     jsonData.oauthPassThru = false;
   }
@@ -58,57 +55,15 @@ export const ConfigEditor = (props: Props) => {
             value={jsonData.resource || ''}
           />
         </InlineField>
-        <InlineField label="API Version" tooltip="The version of the ADH API to use" labelWidth={20}>
-          <Input
-            required={true}
-            placeholder="v1"
-            width={40}
-            onChange={onUpdateDatasourceJsonDataOption(props, 'apiVersion')}
-            value={jsonData.apiVersion || ''}
-          />
-        </InlineField>
-        <InlineField label="Tenant ID" tooltip="The ID of your AVEVA Data Hub tenant" labelWidth={20}>
+        <InlineField label="Account ID" tooltip="The ID of your Connect Account" labelWidth={20}>
           <Input
             required={true}
             placeholder="00000000-0000-0000-0000-000000000000"
             width={40}
-            onChange={onUpdateDatasourceJsonDataOption(props, 'tenantId')}
-            value={jsonData.tenantId || ''}
+            onChange={onUpdateDatasourceJsonDataOption(props, 'accountId')}
+            value={jsonData.accountId || ''}
           />
         </InlineField>
-        <InlineFieldRow>
-          <InlineField
-            label="Community Data"
-            tooltip="Switch to toggle reading from a Namespace to a Community"
-            labelWidth={20}
-          >
-            <InlineSwitch
-              onChange={onUpdateDatasourceJsonDataOptionChecked(props, 'useCommunity')}
-              value={jsonData.useCommunity}
-            />
-          </InlineField>
-        </InlineFieldRow>
-        {jsonData.useCommunity && (
-          <InlineField label="Community ID" tooltip="The ID of the AVEVA Data Hub Community" labelWidth={20}>
-            <Input
-              placeholder="00000000-0000-0000-0000-000000000000"
-              width={40}
-              onChange={onUpdateDatasourceJsonDataOption(props, 'communityId')}
-              value={jsonData.communityId || ''}
-            />
-          </InlineField>
-        )}
-        {!jsonData.useCommunity && (
-          <InlineField label="Namespace ID" tooltip="The Namespace in your for AVEVA Data Hub tenant" labelWidth={20}>
-            <Input
-              required={true}
-              placeholder="Enter a Namespace ID..."
-              width={40}
-              onChange={onUpdateDatasourceJsonDataOption(props, 'namespaceId')}
-              value={jsonData.namespaceId || ''}
-            />
-          </InlineField>
-        )}
         <InlineFieldRow>
           <InlineField label="Use OAuth token" tooltip="Switch to toggle authentication modes" labelWidth={20}>
             <InlineSwitch

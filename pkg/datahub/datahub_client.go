@@ -6,19 +6,17 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
-	"github.com/osisoft/sample-adh-grafana_backend_plugin-datasource/pkg/datahub/community"
+	"github.com/osisoft/sample-adh-grafana_backend_plugin-datasource/pkg/datahub/instmgmt"
 	"github.com/osisoft/sample-adh-grafana_backend_plugin-datasource/pkg/datahub/sds"
 )
 
 type DataHubClient struct {
 	resource        string
-	apiVersion      string
-	tenantId        string
+	accountId       string
 	clientId        string
 	clientSecret    string
 	token           string
@@ -26,11 +24,10 @@ type DataHubClient struct {
 	client          *http.Client
 }
 
-func NewDataHubClient(resource string, apiVersion string, tenantId string, clientId string, clientSecret string) DataHubClient {
+func NewDataHubClient(resource string, accountId string, clientId string, clientSecret string) DataHubClient {
 	return DataHubClient{
 		resource:     resource,
-		apiVersion:   apiVersion,
-		tenantId:     tenantId,
+		accountId:    accountId,
 		clientId:     clientId,
 		clientSecret: clientSecret,
 		client:       &http.Client{},
@@ -42,7 +39,17 @@ func GetClientToken(d *DataHubClient) (string, error) {
 		return ("Bearer " + d.token), nil
 	}
 
-	wellKnownEndpoint := d.resource + "/identity/.well-known/openid-configuration"
+	// prepend identity to resource
+	resourceUrl, err := url.Parse(d.resource)
+	if err != nil {
+		log.DefaultLogger.Warn("Error parsing resource", err.Error())
+		return "", err
+	}
+	resourceUrl.Host = "identity." + resourceUrl.Host
+	identityResource := resourceUrl.String()
+
+	// retrieve OIDC configuration
+	wellKnownEndpoint := identityResource + "/authentication/.well-known/openid-configuration"
 	req, err := http.NewRequest("GET", wellKnownEndpoint, nil)
 	if err != nil {
 		log.DefaultLogger.Warn("Error forming request", err.Error())
@@ -79,9 +86,11 @@ func GetClientToken(d *DataHubClient) (string, error) {
 
 	resp, err = d.client.PostForm(tokenEndpoint,
 		url.Values{
+			"grant_type":    {"client_credentials"},
+			"scope":         {"api"},
 			"client_id":     {d.clientId},
 			"client_secret": {d.clientSecret},
-			"grant_type":    {"client_credentials"}})
+		})
 
 	if err != nil {
 		log.DefaultLogger.Warn("Error requesting token", err.Error())
@@ -153,8 +162,46 @@ func SdsRequest(d *DataHubClient, token string, path string, headers map[string]
 	return body, nil
 }
 
-func StreamsQuery(d *DataHubClient, namespaceId string, token string, query string) (*data.Frame, error) {
-	basePath := d.resource + "/api/" + d.apiVersion + "/tenants/" + url.QueryEscape(d.tenantId) + "/namespaces/" + url.QueryEscape(namespaceId)
+func ServiceInstanceQuery(d *DataHubClient, token string) (*data.Frame, error) {
+	basePath := d.resource + "/api/account/" + url.QueryEscape(d.accountId) + "/instmgmt/v1/instances"
+	path := (basePath + "?ServiceId=sds&?Limit=100")
+
+	body, err := SdsRequest(d, token, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var instanceQueryResponse instmgmt.InstanceQueryResponse
+
+	err = json.Unmarshal(body, &instanceQueryResponse)
+	if err != nil {
+		log.DefaultLogger.Warn("Error parsing json", err.Error())
+		log.DefaultLogger.Warn(fmt.Sprint(string(body)))
+		return nil, err
+	}
+
+	// create a dataframe
+	frame := data.NewFrame("response")
+
+	// create service instance lists from instnace query response
+	ids := make([]string, len(instanceQueryResponse.Items))
+	names := make([]string, len(instanceQueryResponse.Items))
+	for i := 0; i < len(instanceQueryResponse.Items); i++ {
+		ids[i] = instanceQueryResponse.Items[i].Id
+		names[i] = instanceQueryResponse.Items[i].Name
+	}
+
+	// add fields
+	frame.Fields = append(frame.Fields,
+		data.NewField("Id", nil, ids),
+		data.NewField("Name", nil, names),
+	)
+
+	return frame, nil
+}
+
+func StreamsQuery(d *DataHubClient, serviceInstanceId string, token string, query string) (*data.Frame, error) {
+	basePath := d.resource + "/api/account/" + url.QueryEscape(d.accountId) + "/sds/" + url.QueryEscape(serviceInstanceId) + "/v1"
 	path := (basePath + "/streams?query=" + url.QueryEscape(query))
 
 	body, err := SdsRequest(d, token, path, nil)
@@ -191,7 +238,7 @@ func StreamsQuery(d *DataHubClient, namespaceId string, token string, query stri
 	return frame, nil
 }
 
-func CommunityStreamsQuery(d *DataHubClient, communityId string, token string, query string) (*data.Frame, error) {
+/*func CommunityStreamsQuery(d *DataHubClient, communityId string, token string, query string) (*data.Frame, error) {
 	basePath := d.resource + "/api/" + d.apiVersion + "/search/communities/" + url.QueryEscape(communityId)
 
 	path := (basePath + "/streams?query=" + url.QueryEscape(query))
@@ -230,10 +277,10 @@ func CommunityStreamsQuery(d *DataHubClient, communityId string, token string, q
 	)
 
 	return frame, nil
-}
+}*/
 
-func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id string, startIndex string, endIndex string) (*data.Frame, error) {
-	basePath := d.resource + "/api/" + d.apiVersion + "/tenants/" + url.QueryEscape(d.tenantId) + "/namespaces/" + url.QueryEscape(namespaceId)
+func StreamsDataQuery(d *DataHubClient, serviceInstanceId string, token string, id string, startIndex string, endIndex string) (*data.Frame, error) {
+	basePath := d.resource + "/api/account/" + url.QueryEscape(d.accountId) + "/sds/" + url.QueryEscape(serviceInstanceId) + "/v1"
 
 	// get type Id
 	path := (basePath + "/streams/" + url.QueryEscape(id))
@@ -285,7 +332,7 @@ func StreamsDataQuery(d *DataHubClient, namespaceId string, token string, id str
 	return createDataFrameFromSdsData(stream.Name, sdsType, sdsData)
 }
 
-func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token string, self string, startIndex string, endIndex string) (*data.Frame, error) {
+/*func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token string, self string, startIndex string, endIndex string) (*data.Frame, error) {
 
 	// make a community header
 	communityHeader := map[string]string{
@@ -338,7 +385,7 @@ func CommunityStreamsDataQuery(d *DataHubClient, communityId string, token strin
 	}
 
 	return createDataFrameFromSdsData(stream.Name, sdsResolvedStream.SdsType, sdsData)
-}
+}*/
 
 func createDataFrameFromSdsData(dataFrameName string, sdsType sds.SdsType, sdsData []map[string]interface{}) (*data.Frame, error) {
 	// create a dataframe
